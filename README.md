@@ -31,7 +31,7 @@ a history feature to track past conversions.
 ## Structure
 
 1. lib/ │ ├── main.dart # Main screen that serves as the app's entry point, managing its state and overall layout. 
-2. assets/ └── images/ └── circle.png # Images used in the navigation bar(bottom).
+
 
 ## Conversion Formulas
 Fahrenheit to Celsius: °C = (°F - 32) × 5/9
