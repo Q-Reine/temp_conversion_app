@@ -9,7 +9,22 @@ class TempConverterApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Temperature Converter',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
+        scaffoldBackgroundColor: const Color(0xFFF3F3FF),
+        // Define a global theme for all input fields
+        inputDecorationTheme: const InputDecorationTheme(
+          // Style for the border when the input field is focused
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Color.fromARGB(255, 6, 76, 20), // Active green color
+              width: 2.0,
+            ),
+          ),
+          // Style for the label (e.g., 'Celsius') when the field is focused
+          floatingLabelStyle: TextStyle(
+            color: Color.fromARGB(255, 6, 76, 20), // Active green color
+          ),
+        ),
       ),
       home: TempConverterAppPage(),
     );
@@ -24,13 +39,12 @@ class TempConverterAppPage extends StatefulWidget {
 class _TempConverterAppPageState extends State<TempConverterAppPage> {
   final TextEditingController _tempController = TextEditingController();
   bool _isFahrenheitToCelsius = true;
-  String _convertedTemp = '';
+  String _convertedTemp = "0.00";
   List<String> _conversionHistory = [];
 
   void _convertTemperature() {
     setState(() {
       if (_tempController.text.isEmpty) {
-        _convertedTemp = 'Please enter a valid temperature';
         return;
       }
 
@@ -40,10 +54,12 @@ class _TempConverterAppPageState extends State<TempConverterAppPage> {
 
       if (_isFahrenheitToCelsius) {
         result = (inputTemp - 32) * 5 / 9;
-        historyEntry = 'F to C: $inputTemp => ${result.toStringAsFixed(2)}';
+        historyEntry =
+            'F to C: $inputTemp°F => ${result.toStringAsFixed(2)}°C';
       } else {
         result = inputTemp * 9 / 5 + 32;
-        historyEntry = 'C to F: $inputTemp => ${result.toStringAsFixed(2)}';
+        historyEntry =
+            'C to F: $inputTemp°C => ${result.toStringAsFixed(2)}°F';
       }
 
       _convertedTemp = result.toStringAsFixed(2);
@@ -56,137 +72,210 @@ class _TempConverterAppPageState extends State<TempConverterAppPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Temperature Converter',
-          style: TextStyle(color: Colors.white),
+          'Converter',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 2, 86, 45),
+        elevation: 0,
       ),
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildConverterPanel(),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildHistoryPanel(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConverterPanel() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Conversion:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              _buildConversionRadio(
+                  title: 'Fahrenheit to Celsius', value: true),
+              _buildConversionRadio(
+                  title: 'Celsius to Fahrenheit', value: false),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                    'Conversion:',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 1.5,
-                      decorationColor: Colors.blue,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _tempController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText:
+                            _isFahrenheitToCelsius ? 'Fahrenheit' : 'Celsius',
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ListTile(
-                          title: const Text('Fahrenheit to Celsius'),
-                          leading: Radio<bool>(
-                            value: true,
-                            groupValue: _isFahrenheitToCelsius,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isFahrenheitToCelsius = value!;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: ListTile(
-                          title: const Text('Celsius to Fahrenheit'),
-                          leading: Radio<bool>(
-                            value: false,
-                            groupValue: _isFahrenheitToCelsius,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isFahrenheitToCelsius = value!;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  TextField(
-                    controller: _tempController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Enter Temperature',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _convertTemperature,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                      child: const Text(
-                        'CONVERT',
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+                    child: Text('=',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 23, 53, 201),
-                        ),
-                      ),
-                    ),
+                            fontSize: 24, fontWeight: FontWeight.bold)),
                   ),
-                  const SizedBox(height: 20),
-                  if (_convertedTemp.isNotEmpty)
-                    Text(
-                      'Converted Value: $_convertedTemp',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Conversion History',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                      decorationThickness: 1.5,
-                      decorationColor: Colors.blue,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      itemCount: _conversionHistory.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(_conversionHistory[index]),
-                        );
-                      },
-                    ),
+                  Expanded(
+                    child: _buildOutputField(),
                   ),
                 ],
               ),
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.blue,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Center(
-            child: Text(
-              'Temperature Converter App',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _convertTemperature,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 1, 74, 11),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'CONVERT',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildConversionRadio({required String title, required bool value}) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title),
+      leading: Radio<bool>(
+        value: value,
+        groupValue: _isFahrenheitToCelsius,
+        onChanged: (bool? newValue) {
+          setState(() {
+            _isFahrenheitToCelsius = newValue!;
+            _tempController.clear();
+            _convertedTemp = '0.00';
+          });
+        },
+        activeColor: const Color.fromARGB(255, 6, 76, 20),
+      ),
+    );
+  }
+
+  Widget _buildOutputField() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 9.5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _isFahrenheitToCelsius ? 'Celsius' : 'Fahrenheit',
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
+          const SizedBox(height: 5),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: _convertedTemp,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: _isFahrenheitToCelsius ? ' °C' : ' °F',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryPanel() {
+    return Container(
+      height: 500,
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Conversion History:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Divider(),
+          const SizedBox(height: 8),
+          Expanded(
+            child: _conversionHistory.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No conversions yet',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _conversionHistory.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
+                          _conversionHistory[index],
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
