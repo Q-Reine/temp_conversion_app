@@ -10,19 +10,17 @@ class TempConverterApp extends StatelessWidget {
       title: 'Temperature Converter',
       theme: ThemeData(
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: const Color(0xFFF3F3FF),
-        // Define a global theme for all input fields
+        scaffoldBackgroundColor: const Color.fromARGB(255, 243, 255, 248),
         inputDecorationTheme: const InputDecorationTheme(
-          // Style for the border when the input field is focused
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
-              color: Color.fromARGB(255, 6, 76, 20), // Active green color
+              color: Color.fromARGB(255, 6, 76, 20),
               width: 2.0,
             ),
           ),
-          // Style for the label (e.g., 'Celsius') when the field is focused
+          
           floatingLabelStyle: TextStyle(
-            color: Color.fromARGB(255, 6, 76, 20), // Active green color
+            color: Color.fromARGB(255, 6, 76, 20), 
           ),
         ),
       ),
@@ -78,20 +76,40 @@ class _TempConverterAppPageState extends State<TempConverterAppPage> {
         backgroundColor: const Color.fromARGB(255, 2, 86, 45),
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _buildConverterPanel(),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildHistoryPanel(),
-            ),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 600) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildConverterPanel(),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildHistoryPanel(),
+                  ),
+                ],
+              ),
+            );
+          } else {
+              return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildConverterPanel(),
+                    const SizedBox(height: 16),
+                    _buildHistoryPanel(),
+                  ],
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
